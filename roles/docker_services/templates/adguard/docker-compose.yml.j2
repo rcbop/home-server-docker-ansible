@@ -1,0 +1,40 @@
+services:
+  adguard:
+    container_name: adguard
+    image: adguard/adguardhome:latest
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      # Web interface
+      - 8083:3000/tcp
+      # DNS-over-TLS
+      - 853:853/tcp
+    environment:
+      TZ: {{ timezone }}
+    volumes:
+      - {{ volume_path }}/work:/opt/adguardhome/work
+      - {{ volume_path }}/conf:/opt/adguardhome/conf
+    networks:
+      traefik-network:
+        ipv4_address: 172.23.0.20
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.adguard.rule=Host(`{{ addguard_sub_domain }}.{{ server_domain }}`)
+      - traefik.http.routers.adguard.entrypoints=websecure
+      - traefik.http.services.adguard.loadbalancer.server.port=3000
+      - homepage.group=Infrastructure
+      - homepage.name=AdGuard
+      - homepage.icon=adguard-home
+      - homepage.href={{ url_scheme }}://{{ addguard_sub_domain }}.{{ server_domain }}
+      - homepage.description=DNS server and ad blocker
+      - homepage.widget.type=adguard
+      - homepage.widget.url={{ url_scheme }}://{{ addguard_sub_domain }}.{{ server_domain }}
+      - homepage.widget.username={{ adguard_username }}
+      - homepage.widget.password={{ adguard_password }}
+
+networks:
+  traefik-network:
+    external: true

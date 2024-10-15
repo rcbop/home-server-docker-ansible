@@ -1,0 +1,42 @@
+---
+- name: Set up home server
+  hosts: home_server
+  become: yes
+  vars:
+    server_domain: "{{ lookup('env', 'CLOUDFLARE_DOMAIN') }}"
+    acme_email: "{{ lookup('env', 'CLOUDFLARE_EMAIL') }}"
+    cf_api_email: "{{ lookup('env', 'CLOUDFLARE_EMAIL') }}"
+    cf_global_api_key: "{{ lookup('env', 'CLOUDFLARE_API_KEY') }}"
+    url_scheme: https
+    puid: "{{ lookup('env', 'LINUX_PUID') }}"
+    pgid: "{{ lookup('env', 'LINUX_PGID') }}"
+    timezone: "{{ lookup('env', 'LINUX_TIMEZONE') }}"
+    nextcloud_username: "{{ lookup('env', 'NEXTCLOUD_USERNAME') }}"
+    nextcloud_password: "{{ lookup('env', 'NEXTCLOUD_PASSWORD') }}"
+    nextcloud_mysql_user: "{{ lookup('env', 'NEXTCLOUD_MYSQL_USER') }}"
+    nextcloud_mysql_password: "{{ lookup('env', 'NEXTCLOUD_MYSQL_PASSWORD') }}"
+    nextcloud_mysql_root_password: "{{ lookup('env', 'NEXTCLOUD_MYSQL_ROOT_PASSWORD') }}"
+    adguard_username: "{{ lookup('env', 'ADGUARD_USERNAME') }}"
+    adguard_password: "{{ lookup('env', 'ADGUARD_PASSWORD') }}"
+    jellyfin_api_key: "{{ lookup('env', 'JELLYFIN_API_KEY') }}"
+    jellyseerr_api_key: "{{ lookup('env', 'JELLYSEERR_API_KEY') }}"
+  roles:
+    - setup_openssh
+    - docker_services
+
+  tasks:
+    - name: Install softwares
+      apt:
+        name:
+          - curl
+          - git
+          - tmux
+          - vim
+          - ufw
+          - htop
+          - net-tools
+          - dnsutils
+          - traceroute
+          - tree
+          - jq
+        state: present

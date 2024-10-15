@@ -1,0 +1,25 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    environment:
+      PUID: {{ puid }}
+      PGID: {{ pgid }}
+    ports:
+      - 3000:3000
+    volumes:
+      - {{ volume_path }}/config/homepage:/app/config
+    networks:
+      - traefik-network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.homepage.rule=Host(`{{ homepage_sub_domain }}.{{ server_domain }}`)
+      - traefik.http.routers.homepage.entrypoints=websecure
+      - traefik.http.services.homepage.loadbalancer.server.port=3000
+
+networks:
+  traefik-network:
+    external: true

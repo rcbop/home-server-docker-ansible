@@ -1,0 +1,33 @@
+---
+- name: Install fail2ban
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Configure fail2ban
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+
+- name: Ensure fail2ban service is enabled and started
+  systemd:
+    name: fail2ban
+    state: started
+    enabled: yes
+  notify: restart fail2ban
+
+- name: Update SSH settings
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    mode: '0644'
+  loop:
+    - { regexp: '^#?ListenAddress', line: 'ListenAddress 0.0.0.0' }
+    - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
+    - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+    - { regexp: '^#?UsePAM', line: 'UsePAM no' }
+    - { regexp: '^#?Port', line: 'Port 22' }
+    - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
+    - { regexp: '^#?UseDNS', line: 'UseDNS no' }
+  notify: restart sshd

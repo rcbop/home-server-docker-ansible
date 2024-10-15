@@ -1,0 +1,29 @@
+---
+volume_path: /opt/docker-services/data
+docker_services_root: /opt/docker-services/config
+acme_email: changeme@email.com
+dns_challenge_provider: cloudflare
+url_scheme: https
+
+# nextcloud
+nextcloud_username: admin
+nextcloud_password: changeme
+nextcloud_mysql_database: nextcloud
+nextcloud_mysql_user: mysql_admin
+nextcloud_mysql_password: changeme
+nextcloud_mysql_root_password: changemeplease
+
+# subdomains
+portainer_sub_domain: portainer
+nextcloud_sub_domain: nextcloud
+speedtest_sub_domain: speedtest
+addguard_sub_domain: adguard
+traefik_sub_domain: traefik
+homepage_sub_domain: home
+qbittorrent_sub_domain: qbittorrent
+prowlarr_sub_domain: prowlarr
+sonarr_sub_domain: sonarr
+radarr_sub_domain: radarr
+bazarr_sub_domain: bazarr
+jellyfin_sub_domain: jellyfin
+jellyseerr_sub_domain: jellyseerr

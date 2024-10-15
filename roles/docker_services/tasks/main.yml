@@ -1,0 +1,62 @@
+---
+- name: Create volume path
+  file:
+    path: "{{ volume_path }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ puid }}"
+    group: "{{ pgid }}"
+
+- name: Create docker services root
+  file:
+    path: "{{ docker_services_root }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Ensure required directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  loop:
+    - "{{ docker_services_root }}"
+    - "{{ docker_services_root }}/traefik"
+    - "{{ docker_services_root }}/homepage"
+    - "{{ docker_services_root }}/speedtest"
+    - "{{ docker_services_root }}/media-server"
+    - "{{ docker_services_root }}/nextcloud"
+    #- "{{ docker_services_root }}/adguard"
+
+- name: Copy Docker Compose files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0600'
+  loop:
+    - { src: 'traefik/docker-compose.yml.j2', dest: '{{ docker_services_root }}/traefik/docker-compose.yml' }
+    - { src: 'homepage/docker-compose.yml.j2', dest: '{{ docker_services_root }}/homepage/docker-compose.yml' }
+    - { src: 'speedtest/docker-compose.yml.j2', dest: '{{ docker_services_root }}/speedtest/docker-compose.yml' }
+    - { src: 'media-server/docker-compose.yml.j2', dest: '{{ docker_services_root }}/media-server/docker-compose.yml' }
+    - { src: 'nextcloud/docker-compose.yml.j2', dest: '{{ docker_services_root }}/nextcloud/docker-compose.yml' }
+    # - { src: 'adguard/docker-compose.yml.j2', dest: '{{ docker_services_root }}/adguard/docker-compose.yml' }
+
+- name: Create Docker network
+  docker_network:
+    name: traefik-network
+    driver: bridge
+    ipam_config:
+      - subnet: 172.23.0.0/16
+        gateway: 172.23.0.1
+
+- name: Deploy Docker services
+  command: docker compose -f "{{ docker_services_root }}/{{ item }}/docker-compose.yml" up -d
+  loop:
+    - traefik
+    - media-server
+    - nextcloud
+    - speedtest
+    - homepage

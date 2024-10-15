@@ -1,0 +1,33 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ volume_path }}/data:/data
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portainer.rule=Host(`{{ portainer_sub_domain }}.{{ server_domain }}`)
+      - traefik.http.routers.portainer.entrypoints=websecure
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+      - homepage.group=Infrastructure
+      - homepage.name=Portainer
+      - homepage.icon=portainer
+      - homepage.href={{ url_scheme }}://{{ portainer_sub_domain }}.{{ server_domain }}
+      - homepage.description=Container management
+      - homepage.widget.type=portainer
+      - homepage.widget.url={{ url_scheme }}://{{ portainer_sub_domain }}.{{ server_domain }}
+      - homepage.widget.env=2
+      - homepage.widget.key={{ api_key }}
+      - homepage.widget.fields=["running", "stopped", "total"]
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  traefik-network:
+    external: true

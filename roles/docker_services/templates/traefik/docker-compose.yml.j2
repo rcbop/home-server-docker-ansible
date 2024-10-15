@@ -1,0 +1,78 @@
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    command:
+      - "--log.level=DEBUG"
+      - "--accesslog=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls.certResolver=myresolver"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
+      - "--certificatesResolvers.myresolver.acme.email={{ acme_email }}"
+      - "--certificatesResolvers.myresolver.acme.dnschallenge.provider={{ dns_challenge_provider }}"
+      - "--certificatesResolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+      - "--certificatesResolvers.myresolver.acme.caserver=https://acme-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge.delayBeforeCheck=0"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    environment:
+      CF_API_KEY: "{{ cf_global_api_key }}"
+      CF_API_EMAIL: "{{ cf_api_email }}"
+    networks:
+      - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ volume_path }}/letsencrypt:/letsencrypt
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik.entrypoints=websecure
+      - traefik.http.routers.traefik.tls=true
+      - traefik.http.routers.traefik.tls.domains[0].main={{ server_domain }}
+      - traefik.http.routers.traefik.tls.domains[0].sans="*.{{ server_domain }}"
+      - traefik.http.routers.traefik.tls.certresolver=myresolver
+      - traefik.http.routers.dashboard.rule=Host(`{{ traefik_sub_domain }}.{{ server_domain }}`)
+      - traefik.http.routers.dashboard.service=api@internal
+      - homepage.group=Infrastructure
+      - homepage.name=Traefik
+      - homepage.icon=traefik
+      - homepage.href={{ url_scheme }}://{{ traefik_sub_domain }}.{{ server_domain }}
+      - homepage.description=Reverse proxy
+      - homepage.widget.type=traefik
+      - homepage.widget.url={{ url_scheme }}://{{ traefik_sub_domain }}.{{ server_domain }}
+      - homepage.widget.fields=["routers", "services", "middleware"]
+    security_opt:
+      - no-new-privileges:true
+
+  whoami:
+    image: traefik/whoami:latest
+    container_name: whoami
+    networks:
+      - traefik
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.whoami.rule=Host(`{{ server_domain }}`)
+      - traefik.http.routers.whoami.entrypoints=websecure
+      - traefik.http.routers.whoami.tls.certresolver=myresolver
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  traefik:
+    driver: bridge
+    name: traefik-network
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
+          gateway: 172.23.0.1
