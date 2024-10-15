@@ -11,6 +11,7 @@
     puid: "{{ lookup('env', 'LINUX_PUID') }}"
     pgid: "{{ lookup('env', 'LINUX_PGID') }}"
     timezone: "{{ lookup('env', 'LINUX_TIMEZONE') }}"
+    speedtest_app_key: "{{ lookup('env', 'SPEEDTEST_APP_KEY') }}"
     nextcloud_username: "{{ lookup('env', 'NEXTCLOUD_USERNAME') }}"
     nextcloud_password: "{{ lookup('env', 'NEXTCLOUD_PASSWORD') }}"
     nextcloud_mysql_user: "{{ lookup('env', 'NEXTCLOUD_MYSQL_USER') }}"

@@ -7,6 +7,9 @@ services:
         - PGID={{ pgid }}
         - TZ={{ timezone }}
         - DB_CONNECTION=sqlite
+        - DISPLAY_TIMEZONE={{ timezone }}
+        - APP_KEY={{ speedtest_app_key }}
+        - APP_DEBUG=true
       volumes:
         - {{ volume_path }}/config/speedtest-tracker:/config
       ports:

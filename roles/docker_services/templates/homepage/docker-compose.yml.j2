@@ -9,6 +9,7 @@ services:
       - 3000:3000
     volumes:
       - {{ volume_path }}/config/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik-network
     restart: unless-stopped

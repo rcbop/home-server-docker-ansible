@@ -29,7 +29,6 @@
     - "{{ docker_services_root }}/speedtest"
     - "{{ docker_services_root }}/media-server"
     - "{{ docker_services_root }}/nextcloud"
-    #- "{{ docker_services_root }}/adguard"
 
 - name: Copy Docker Compose files
   template:
@@ -42,15 +41,11 @@
     - { src: 'speedtest/docker-compose.yml.j2', dest: '{{ docker_services_root }}/speedtest/docker-compose.yml' }
     - { src: 'media-server/docker-compose.yml.j2', dest: '{{ docker_services_root }}/media-server/docker-compose.yml' }
     - { src: 'nextcloud/docker-compose.yml.j2', dest: '{{ docker_services_root }}/nextcloud/docker-compose.yml' }
-    # - { src: 'adguard/docker-compose.yml.j2', dest: '{{ docker_services_root }}/adguard/docker-compose.yml' }
 
 - name: Create Docker network
   docker_network:
     name: traefik-network
     driver: bridge
-    ipam_config:
-      - subnet: 172.23.0.0/16
-        gateway: 172.23.0.1
 
 - name: Deploy Docker services
   command: docker compose -f "{{ docker_services_root }}/{{ item }}/docker-compose.yml" up -d

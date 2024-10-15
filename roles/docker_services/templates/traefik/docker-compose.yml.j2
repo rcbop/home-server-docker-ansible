@@ -39,7 +39,7 @@ services:
       - traefik.http.routers.traefik.entrypoints=websecure
       - traefik.http.routers.traefik.tls=true
       - traefik.http.routers.traefik.tls.domains[0].main={{ server_domain }}
-      - traefik.http.routers.traefik.tls.domains[0].sans="*.{{ server_domain }}"
+      - traefik.http.routers.traefik.tls.domains[0].sans=*.{{ server_domain }}
       - traefik.http.routers.traefik.tls.certresolver=myresolver
       - traefik.http.routers.dashboard.rule=Host(`{{ traefik_sub_domain }}.{{ server_domain }}`)
       - traefik.http.routers.dashboard.service=api@internal
@@ -72,7 +72,3 @@ networks:
   traefik:
     driver: bridge
     name: traefik-network
-    ipam:
-      config:
-        - subnet: 172.23.0.0/16
-          gateway: 172.23.0.1
